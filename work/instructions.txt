@@ -1,0 +1,19 @@
+
+remove old files:
+	rm source_train.txt source_test.txt train.txt test.txt tags_train.txt tags_test.txt
+
+commands for splitting text:
+	# between '-n' and 'source.txt' in the first command goes Number of Lines to be processed
+	# between '-n' and 'source.txt' in the second command goes that Number divided by 3
+
+	head -n N source.txt > source_train.txt		#training data
+	tail -n N/5 source.txt > source_test.txt	#testing data
+
+prepare_text commands:
+	python prepare_text.py source_train.txt train.txt
+	python prepare_text.py source_test.txt test.txt
+
+convert_tags commands:
+	python convert_tags.py train.txt tags_train.txt
+	python convert_tags.py test.txt tags_test.txt
+
