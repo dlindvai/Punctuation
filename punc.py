@@ -157,8 +157,8 @@ class BiLSTM_CRF(nn.Module):
 
 START_TAG = "<START>"
 STOP_TAG = "<STOP>"
-EMBEDDING_DIM = 250
-HIDDEN_DIM = 250
+EMBEDDING_DIM = 50
+HIDDEN_DIM = 200
 
 # START TIME
 start = datetime.datetime.now()
@@ -184,6 +184,7 @@ with open("work/train.txt", "r") as train2, open("work/tags_train.txt", "r") as 
 training_data = [( train.split() , tags_train.split() )]
 testing_data = [( test.split() , tags_test.split() )]
 
+# Embedding TRAINING data
 word_to_ix = {}
 for sentence, tags in training_data:
     for word in sentence:
@@ -205,15 +206,14 @@ for epoch in range(20):
         loss.backward()
         optimizer.step()
 
-# ERROR CALCULATOR
+# ERROR CALCULATOR, which is not necessary in Training
 with torch.no_grad():
     precheck_sent = prepare_sequence(training_data[0][0], word_to_ix)
 
 print("\nTRAINING:\n")
-var1 = targets
-var2 = model(precheck_sent)
-y_true = np.array(var1)
-y_pred = np.array(var2[1])
+var = model(precheck_sent)
+y_true = np.array(targets)
+y_pred = np.array(var[1])
 
 print(metrics.confusion_matrix(y_true, y_pred), "\n")
 print(metrics.classification_report(y_true, y_pred, digits=3))
@@ -226,6 +226,7 @@ for sentence, tags in testing_data:
             word_to_ix[word] = len(word_to_ix)
 
 for sentence, tags in testing_data:
+    # I use this variable only to calculate the Error.
     test_sentence_in = prepare_sequence(sentence, word_to_ix)
     test_targets = torch.tensor([tag_to_ix[t] for t in tags], dtype=torch.long)
 
@@ -233,10 +234,9 @@ with torch.no_grad():
     test_precheck_sent = prepare_sequence(testing_data[0][0], word_to_ix)
 
 print("\nTESTING:\n")
-test_var1 = test_targets
-test_var2 = model(test_precheck_sent)
-test_y_true = np.array(test_var1)
-test_y_pred = np.array(test_var2[1])
+test_var = model(test_precheck_sent)
+test_y_true = np.array(test_targets)
+test_y_pred = np.array(test_var[1])
 
 print(metrics.confusion_matrix(test_y_true, test_y_pred), "\n")
 print(metrics.classification_report(test_y_true, test_y_pred, digits=3))
